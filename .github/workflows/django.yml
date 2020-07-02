@@ -28,3 +28,5 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+      env:
+        ACELERADEV_FINAL_PROJ_KEY: 05(h53=)-lsz3@73#aceleradev-python#ag&z=6uy38*6
