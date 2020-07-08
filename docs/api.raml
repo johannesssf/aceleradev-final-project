@@ -1,0 +1,338 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/42c1c530-ce00-459f-9120-5b4def60a678/ #
+title: central-errors
+description: The Centrar Errors is a microservice responsible for storing and centralizing error messages for any equipment.
+securitySchemes:
+  JWT:
+    description: Autentication is done by using the token received when the user login and it must be informed when accessing the protected resources from the system.
+    type: x-jwt
+    describedBy:
+      headers:
+        Authorization:
+          description:  X-AuthToken
+          type: string
+          required: true
+          pattern: ^Token .+$
+
+types:
+  Email:
+    description: Email field.
+    type: string
+    maxLength: 255
+    pattern: ^.+@.+\..+$
+
+  Password:
+    description: Password field.
+    type: string
+    minLength: 8
+    maxLength: 50
+
+  IPv4:
+    description: IPv4 address.
+    type: string
+    minLength: 7
+    maxLength: 15
+    pattern: ^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$
+
+  LogLevel:
+    description: Available criticality levels.
+    type: string
+    maxLength: 10
+    enum: [critical, debug, error, warning, info]
+
+  String30:
+    type: string
+    maxLength: 30
+
+  String200:
+    type: string
+    maxLength: 200
+
+  User:
+    description: Central Errors users.
+    type: object
+    properties:
+      email: Email
+      password: Password
+    example:
+      email: john@email.com
+      password: 1a2b3c4d
+
+  Record:
+    description: Record storaged in central errors. All records will respect the same pattern.
+    type: object
+    properties:
+      environment: String30
+      level: LogLevel
+      message: String200
+      origin: IPv4
+      date: datetime
+      is_archived: boolean
+    example:
+      environment: Production
+      level: debug
+      message: Record message
+      origin: 1.1.1.1
+      date: 2020-02-27T00:00:00Z
+      is_archived: true
+
+/auth/token:
+  post:
+    description: User authentication used to access the resources.
+    body:
+      application/json:
+        type: User
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              {"token": "e6223ae4a109705437fe69263dfb7ad3"}
+      400:
+        body:
+          application/json:
+            example:
+              {"message": "Missing required fields"}
+      401:
+        body:
+          application/json:
+            example:
+              {"message": "Invalid credentials"}
+
+/users:
+  description: Collection of system users.
+  securedBy: [JWT]
+  get:
+    description: Collection of all users.
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "users": [
+                  {
+                    "id": 1,
+                    "email": "john@email.com"
+                  },
+                  {
+                    "id": 2,
+                    "email": "mary@email.com"
+                  },
+                  {
+                    "id": 3,
+                    "email": "beth@gmail.com"
+                  }
+                ]
+              }
+      401:
+        body:
+          application/json:
+            examples:
+              unalthenticated:
+                {"message": "Authentication required"}
+              expired:
+                {"message": "Token expired or invalid"}
+  post:
+    body:
+      application/json:
+        type: User
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              {"message": "User created"}
+      400:
+        body:
+          application/json:
+            example:
+              {"message": "Invalid or missing parameters"}
+      401:
+        body:
+          application/json:
+            examples:
+              unalthenticated:
+                {"message": "Authentication required"}
+              expired:
+                {"message": "Token expired or invalid"}
+  /{id}:
+    securedBy: [JWT]
+    uriParameters:
+      id: integer
+    get:
+      description: Get information of an system user.
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "id": 111,
+                  "email": "john@email.com"
+                }
+        401:
+          body:
+            application/json:
+              examples:
+                unalthenticated:
+                  {"message": "Authentication required"}
+                expired:
+                  {"message": "Token expired or invalid"}
+        404:
+          body:
+            application/json:
+              example:
+                {"message": "User not found"}
+    delete:
+      description: Delete an system user.
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {"message": "User deleted"}
+        401:
+          body:
+            application/json:
+              examples:
+                unalthenticated:
+                  {"message": "Authentication required"}
+                expired:
+                  {"message": "Token expired or invalid"}
+        404:
+          body:
+            application/json:
+              example:
+                {"message": "User not found"}
+
+/records:
+  description: Collection of system records.
+  securedBy: [JWT]
+  get: # use some kind of filter
+    description: List of all records available.
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "records": [
+                  {
+                    "id": 1,
+                    "environment": "Production",
+                    "level": "warning",
+                    "message": "User authentication failed 3x",
+                    "origin": 1.1.1.1,
+                    "date": 2020-03-05T23:56:19,
+                    "is_archived": false
+                  },
+                  {
+                    "id": 2,
+                    "environment": "Production",
+                    "level": "error",
+                    "message": "Unreconized user credential - Peter",
+                    "origin": 2.2.2.2,
+                    "date": 2020-03-05T23:56:19,
+                    "is_archived": false
+                  },
+                  {
+                    "id": 3,
+                    "environment": "Homolog",
+                    "level": "debug",
+                    "message": "Preparing file to download",
+                    "origin": 3.3.3.3,
+                    "date": 2020-02-25T13:26:19,
+                    "is_archived": false
+                  }
+                ]
+              }
+      401:
+          body:
+            application/json:
+              examples:
+                unalthenticated:
+                  {"message": "Authentication required"}
+                expired:
+                  {"message": "Token expired or invalid"}
+  post:
+    description: Create a new record in the system.
+    body:
+      application/json:
+        type: Record
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              {"message": "Record created"}
+      400:
+        body:
+          application/json:
+            example:
+              {"message": "Invalid or missing parameters"}
+      401:
+        body:
+          application/json:
+            examples:
+              unalthenticated:
+                {"message": "Authentication required"}
+              expired:
+                {"message": "Token expired or invalid"}
+/records/{id}:
+  securedBy: [JWT]
+  uriParameters:
+    id: integer
+  put:
+    body:
+      application/json:
+        properties:
+          environment?: String30
+          level?: LogLevel
+          message?: String200
+          origin?: IPv4
+          date?: datetime
+          is_archived?: boolean
+        example:
+          {
+            "environment": "Production",
+            "level": "debug",
+            "message": "Record message",
+            "origin": "1.1.1.1",
+            "date": 2020-02-27T00:00:00Z,
+            "is_archived": true
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {"message": "Record updated"}
+      400:
+        body:
+          application/json:
+            example:
+              {"message": "Invalid or missing parameters"}
+      401:
+        body:
+          application/json:
+            examples:
+              unalthenticated:
+                {"message": "Authentication required"}
+              expired:
+                {"message": "Token expired or invalid"}
+  delete:
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {"message": "Record deleted"}
+      401:
+        body:
+          application/json:
+            examples:
+              unalthenticated:
+                {"message": "Authentication required"}
+              expired:
+                {"message": "Token expired or invalid"}
