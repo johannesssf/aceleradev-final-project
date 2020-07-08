@@ -7,5 +7,4 @@
 
 ## Documentação da API REST
 
-[central-errors/api]
-(https://johannesssf.github.io/aceleradev-final-project/)
+[central-errors/api](https://johannesssf.github.io/aceleradev-final-project/docs/api.html)
