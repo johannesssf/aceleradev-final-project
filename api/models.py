@@ -38,4 +38,3 @@ class Record(models.Model):
             self.environment,
             self.message
         )
-
