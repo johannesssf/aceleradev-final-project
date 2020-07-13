@@ -9,6 +9,8 @@ class User(models.Model):
         max_length=50,
         validators=[MinLengthValidator(8)]
     )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('email', 'password')
 
     def __str__(self):
         return self.email
