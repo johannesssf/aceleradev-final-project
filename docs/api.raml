@@ -148,14 +148,6 @@ types:
           application/json:
             example:
               {"message": "Invalid or missing parameters"}
-      401:
-        body:
-          application/json:
-            examples:
-              unalthenticated:
-                {"message": "Authentication required"}
-              expired:
-                {"message": "Token expired or invalid"}
   /{id}:
     securedBy: [JWT]
     uriParameters:

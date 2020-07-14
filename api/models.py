@@ -1,16 +1,47 @@
+from hashlib import sha256
+
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import MinLengthValidator
 from django.db import models
 
 
-class User(models.Model):
-    email = models.EmailField('e-mail')
+class UserManager(BaseUserManager):
+    """Mandatory class when using a custom user.
+    """
+    list_display = ('email', 'password')
+
+    def create_user(self, email, password):
+        User.objects.create(email=email, password=password)
+
+    def create_superuser(self, email, password):
+        self.create_user(email, password)
+
+    def get_by_natural_key(self, email):
+        return User.objects.get(email=email)
+
+
+class User(AbstractBaseUser):
+    """Represents the API users and substitutes the default Django User.
+
+    The email field is used to authenticate users into the system and
+    the password field is encrypted before being saved using sha256 hash
+    algorithm.
+    """
+    email = models.EmailField('e-mail', unique=True)
     password = models.CharField(
         'password',
-        max_length=50,
+        max_length=100,
         validators=[MinLengthValidator(8)]
     )
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('email', 'password')
+    REQUIRED_FIELDS = ('password',)
+    objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        """Overrides super's method to add password cryptography.
+        """
+        self.password = sha256(self.password.encode()).hexdigest()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.email
