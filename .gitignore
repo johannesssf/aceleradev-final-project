@@ -11,3 +11,6 @@ db.sqlite3
 # coverage
 .coverage
 htmlcov
+
+# migrations
+api/migrations
