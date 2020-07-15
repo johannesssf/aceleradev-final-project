@@ -1,5 +1,3 @@
-from hashlib import sha256
-
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -84,8 +82,6 @@ class TestUserAPI(TestCase):
 
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp.data['email'], user['email'])
-        self.assertEqual(sha256(user['password'].encode()).hexdigest(),
-                         resp.data['password'])
 
     def test_users_post_status_400(self):
         client = APIClient()
