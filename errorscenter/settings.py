@@ -125,10 +125,9 @@ STATIC_URL = '/static/'
 # rest_framework specific config
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ]
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 }
 
 # Custom user
-AUTH_USER_MODEL = 'api.User'
+# AUTH_USER_MODEL = 'api.User'

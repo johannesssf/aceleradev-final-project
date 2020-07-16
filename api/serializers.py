@@ -1,6 +1,7 @@
+from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer
 
-from .models import User, Record
+from .models import Record
 
 
 class UserModelSerializer(ModelSerializer):
@@ -8,6 +9,7 @@ class UserModelSerializer(ModelSerializer):
         model = User
         fields = [
             'id',
+            'username',
             'email',
             'password',
         ]

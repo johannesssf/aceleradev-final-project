@@ -52,11 +52,13 @@ types:
     description: Central Errors users.
     type: object
     properties:
+      username: string
       email: Email
       password: Password
     example:
+      username: john
       email: john@email.com
-      password: 1a2b3c4d
+      password: asdf1234
 
   Record:
     description: Record storaged in central errors. All records will respect the same pattern.
@@ -83,7 +85,7 @@ types:
       application/json:
         type: User
     responses:
-      201:
+      201: # fazer um check de todas as respostas
         body:
           application/json:
             example:
@@ -91,13 +93,18 @@ types:
       400:
         body:
           application/json:
-            example:
-              {"message": "Missing required fields"}
-      401:
-        body:
-          application/json:
-            example:
-              {"message": "Invalid credentials"}
+            examples:
+              invalid_fields:
+                {
+                  "username": [
+                     "This field is required."
+                  ],
+                  "password": [
+                    "This field is required."
+                  ]
+                }
+              invalid_credentials:
+                {"message": "Unable to log in with provided credentials."}
 
 /users:
   description: Collection of system users.
@@ -113,15 +120,21 @@ types:
                 "users": [
                   {
                     "id": 1,
-                    "email": "john@email.com"
+                    "username": 'john',
+                    "email": "john@email.com",
+                    "password": "abcdedegadfadf"
                   },
                   {
                     "id": 2,
-                    "email": "mary@email.com"
+                    "username": "mary",
+                    "email": "mary@email.com",
+                    "password": "abcdedegadfadf"
                   },
                   {
                     "id": 3,
-                    "email": "beth@gmail.com"
+                    "username": "beth",
+                    "email": "beth@gmail.com",
+                    "password": "abcdedegadfadf"
                   }
                 ]
               }
@@ -130,9 +143,9 @@ types:
           application/json:
             examples:
               unalthenticated:
-                {"message": "Authentication required"}
-              expired:
-                {"message": "Token expired or invalid"}
+                {"message": "Authentication credentials were not provided."}
+              invalid:
+                {"message": "Invalid token."}
   post:
     body:
       application/json:
@@ -142,12 +155,31 @@ types:
         body:
           application/json:
             example:
-              {"message": "User created"}
+              {
+                "username": "john",
+                "email": "john@email.com",
+                "password": "asdf1243"
+              }
       400:
         body:
           application/json:
             example:
-              {"message": "Invalid or missing parameters"}
+              {
+                "username": [
+                    "This field is required."
+                ],
+                "password": [
+                    "This field is required."
+                ]
+              }
+      401:
+        body:
+          application/json:
+            examples:
+              unalthenticated:
+                {"message": "Authentication credentials were not provided."}
+              invalid:
+                {"message": "Invalid token."}
   /{id}:
     securedBy: [JWT]
     uriParameters:
@@ -161,7 +193,9 @@ types:
               example:
                 {
                   "id": 111,
-                  "email": "john@email.com"
+                  "username": "john",
+                  "email": "john@email.com",
+                  "password": "abcdedegadfadf"
                 }
         401:
           body:
