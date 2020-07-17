@@ -26,4 +26,5 @@ class RecordModelSerializer(ModelSerializer):
             'origin',
             'date',
             'is_archived',
+            'user_id',
         ]

@@ -33,5 +33,9 @@ jobs:
         python manage.py makemigrations
         python manage.py migrate
         python manage.py test
+    - name: Run Coverage
+        run: |
+          coverage run manage.py test
+          coverage report
       env:
         ACELERADEV_FINAL_PROJ_KEY: 05(h53=)-lsz3@73#aceleradev-python#ag&z=6uy38*6

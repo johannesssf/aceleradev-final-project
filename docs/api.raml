@@ -117,7 +117,7 @@ types:
           application/json:
             example:
               {
-                "users": [
+                [
                   {
                     "id": 1,
                     "username": 'john',
@@ -243,7 +243,7 @@ types:
           application/json:
             example:
               {
-                "records": [
+                [
                   {
                     "id": 1,
                     "environment": "Production",
@@ -278,9 +278,9 @@ types:
             application/json:
               examples:
                 unalthenticated:
-                  {"message": "Authentication required"}
+                  {"message": "Authentication credentials were not provided."}
                 expired:
-                  {"message": "Token expired or invalid"}
+                  {"message": "Invalid token."}
   post:
     description: Create a new record in the system.
     body:
@@ -291,24 +291,82 @@ types:
         body:
           application/json:
             example:
-              {"message": "Record created"}
+              {"message": "Record created."}
       400:
         body:
           application/json:
-            example:
-              {"message": "Invalid or missing parameters"}
+            examples:
+              missing_fields:
+                {
+                  "environment": [
+                      "This field is required."
+                  ],
+                  "level": [
+                      "This field is required."
+                  ],
+                  "message": [
+                      "This field is required."
+                  ],
+                  "origin": [
+                      "This field is required."
+                  ],
+                  "date": [
+                      "This field is required."
+                  ],
+                  "is_archived": [
+                      "This field is required."
+                  ],
+                  "user_id": [
+                      "This field is required."
+                  ]
+                }
+              invalid_user:
+                {
+                  "user_id": [
+                      "Invalid pk \"1000\" - object does not exist."
+                  ]
+                }
       401:
         body:
           application/json:
             examples:
               unalthenticated:
-                {"message": "Authentication required"}
-              expired:
-                {"message": "Token expired or invalid"}
+                  {"message": "Authentication credentials were not provided."}
+                expired:
+                  {"message": "Invalid token."}
 /records/{id}:
   securedBy: [JWT]
   uriParameters:
     id: integer
+  get:
+      description: Get information of a record.
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "id": 1,
+                  "environment": "Production",
+                  "level": "warning",
+                  "message": "User authentication failed 3x",
+                  "origin": 1.1.1.1,
+                  "date": 2020-03-05T23:56:19,
+                  "is_archived": false
+                }
+        401:
+          body:
+            application/json:
+              examples:
+                unalthenticated:
+                  {"message": "Authentication credentials were not provided."}
+                expired:
+                  {"message": "Invalid token."}
+        404:
+          body:
+            application/json:
+              example:
+                {"message": "Record not found."}
   put:
     body:
       application/json:
@@ -333,32 +391,66 @@ types:
         body:
           application/json:
             example:
-              {"message": "Record updated"}
+              {
+                "id": 1,
+                "environment": "Updated env",
+                "level": "debug",
+                "message": "Updated message",
+                "origin": "172.169.0.52",
+                "date": "2020-07-17T10:55:54.805566-03:00",
+                "is_archived": true,
+                "user_id": 20
+              }
       400:
         body:
           application/json:
-            example:
-              {"message": "Invalid or missing parameters"}
+            examples:
+              invalid_level:
+                {
+                  "level": [
+                    "\"invalid\" is not a valid choice."
+                  ]
+                }
+              invalid_origin_invalid_user:
+                {
+                  "origin": [
+                    "Enter a valid IPv4 address."
+                  ],
+                  "user_id": [
+                    "Invalid pk \"1000\" - object does not exist."
+                  ]
+                }
       401:
         body:
           application/json:
             examples:
               unalthenticated:
-                {"message": "Authentication required"}
-              expired:
-                {"message": "Token expired or invalid"}
+                unalthenticated:
+                  {"message": "Authentication credentials were not provided."}
+                expired:
+                  {"message": "Invalid token."}
+      404:
+          body:
+            application/json:
+              example:
+                {"message": "Record not found."}
   delete:
     responses:
       200:
         body:
           application/json:
             example:
-              {"message": "Record deleted"}
+              {"message": "Record deleted."}
       401:
         body:
           application/json:
             examples:
               unalthenticated:
-                {"message": "Authentication required"}
-              expired:
-                {"message": "Token expired or invalid"}
+                  {"message": "Authentication credentials were not provided."}
+                expired:
+                  {"message": "Invalid token."}
+      404:
+          body:
+            application/json:
+              example:
+                {"message": "Record not found."}
