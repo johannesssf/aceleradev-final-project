@@ -59,7 +59,7 @@ class TestAuthTokenAPI(TestCase):
         self.assertIn('token', resp.data)
 
     def test_api_auth_token_invalid_credentials(self):
-        """Ensure a non-existing user is able to authenticate.
+        """Ensure a non-existing user is not able to authenticate.
         """
         data = {'username': "non-user", 'password': "somepass1243"}
         resp = self.client.post('/api/auth/token/', data, format='json')
@@ -70,7 +70,6 @@ class TestAuthTokenAPI(TestCase):
 class TestUsersAPI(TestCase):
     def setUp(self):
         self.users = ['john', 'beth']
-        self.client = APIClient()
 
         for user in self.users:
             User.objects.create_user(
@@ -79,6 +78,7 @@ class TestUsersAPI(TestCase):
                 password='asdf1243'
             )
 
+        client = APIClient()
         data = {'username': 'john', 'password': 'asdf1243'}
         resp = self.client.post('/api/auth/token/', data, format='json')
         self.token = resp.data['token']
@@ -87,8 +87,9 @@ class TestUsersAPI(TestCase):
         """Ensure that a get in '/api/users/' works fine with a valid
         token and returns an OK status code and all existing users.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-        resp = self.client.get('/api/users/')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        resp = client.get('/api/users/')
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp.data), len(self.users))
@@ -97,7 +98,8 @@ class TestUsersAPI(TestCase):
         """Ensure that a get in '/api/users/' without a valid token will
         return an unauthorized status code.
         """
-        resp = self.client.get('/api/users/')
+        client = APIClient()
+        resp = client.get('/api/users/')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -105,8 +107,9 @@ class TestUsersAPI(TestCase):
         """Ensure that a get in '/api/users/' with an invalid token will
         return an unauthorized status code.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
-        resp = self.client.get('/api/users/')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
+        resp = client.get('/api/users/')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -114,13 +117,14 @@ class TestUsersAPI(TestCase):
         """Ensure that a post in '/api/users/' with valid token and
         parameters will return an created status code.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         data = {
             'username': 'mary',
             'email': 'mary@mail.com',
             'password': 'asdf1234'
         }
-        resp = self.client.post('/api/users/', data, format='json')
+        resp = client.post('/api/users/', data, format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -128,12 +132,13 @@ class TestUsersAPI(TestCase):
         """Ensure that a post in '/api/users/' without a valid token will
         return an unauthorized status code.
         """
+        client = APIClient()
         data = {
             'username': 'mary',
             'email': 'mary@mail.com',
             'password': 'asdf1234'
         }
-        resp = self.client.post('/api/users/', data, format='json')
+        resp = client.post('/api/users/', data, format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -141,13 +146,14 @@ class TestUsersAPI(TestCase):
         """Ensure that a post in '/api/users/' with an invalid token will
         return an unauthorized status code.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
         data = {
             'username': 'mary',
             'email': 'mary@mail.com',
             'password': 'asdf1234'
         }
-        resp = self.client.post('/api/users/', data, format='json')
+        resp = client.post('/api/users/', data, format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -155,13 +161,14 @@ class TestUsersAPI(TestCase):
         """Ensure that a post in '/api/users/' with invalid parameters will
         return an bad request status code.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         data = {
             'nome': 'mary',
             'email': 'mary@mail.com',
             'senha': 'asdf1234'
         }
-        resp = self.client.post('/api/users/', data, format='json')
+        resp = client.post('/api/users/', data, format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -170,8 +177,9 @@ class TestUsersAPI(TestCase):
         token and returns an OK status code and the user data.
         """
         user = User.objects.latest('id')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-        resp = self.client.get(f'/api/users/{user.id}/')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        resp = client.get(f'/api/users/{user.id}/')
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['username'], user.username)
@@ -181,8 +189,9 @@ class TestUsersAPI(TestCase):
         """Ensure that a get in '/api/users/{id}' with a valid token
         returns an NOT FOUND status code if user's id doesn't exist.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-        resp = self.client.get('/api/users/9999/')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        resp = client.get('/api/users/9999/')
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -191,7 +200,8 @@ class TestUsersAPI(TestCase):
         return an unauthorized status code.
         """
         user = User.objects.latest('id')
-        resp = self.client.post(f'/api/users/{user.id}/', format='json')
+        client = APIClient()
+        resp = client.post(f'/api/users/{user.id}/', format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -200,8 +210,9 @@ class TestUsersAPI(TestCase):
         will return an unauthorized status code.
         """
         user = User.objects.latest('id')
-        self.client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
-        resp = self.client.post(f'/api/users/{user.id}/', format='json')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
+        resp = client.post(f'/api/users/{user.id}/', format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -210,8 +221,9 @@ class TestUsersAPI(TestCase):
         valid token and returns an OK status code and the user is deleted.
         """
         user = User.objects.latest('id')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-        resp = self.client.delete(f'/api/users/{user.id}/', format='json')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        resp = client.delete(f'/api/users/{user.id}/', format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -222,8 +234,9 @@ class TestUsersAPI(TestCase):
         """Ensure that a delete in '/api/users/{id}' with a valid token
         returns an NOT FOUND code if the user's id doesn't exist.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-        resp = self.client.delete('/api/users/9999/', format='json')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        resp = client.delete('/api/users/9999/', format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -232,7 +245,8 @@ class TestUsersAPI(TestCase):
         return an unauthorized status code.
         """
         user = User.objects.latest('id')
-        resp = self.client.delete(f'/api/users/{user.id}/', format='json')
+        client = APIClient()
+        resp = client.delete(f'/api/users/{user.id}/', format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -241,7 +255,8 @@ class TestUsersAPI(TestCase):
         will return an unauthorized status code.
         """
         user = User.objects.latest('id')
-        self.client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
-        resp = self.client.delete(f'/api/users/{user.id}/', format='json')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token some-invalid-token')
+        resp = client.delete(f'/api/users/{user.id}/', format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
