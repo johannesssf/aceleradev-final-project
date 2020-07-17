@@ -15,6 +15,10 @@ class TestRecord(TestCase):
     def setUp(self):
         self.record = baker.make('api.Record')
 
+    def test_record_str(self):
+        rec = baker.make('api.Record')
+        self.assertTrue(f'[{rec.level}]' in str(rec))
+
     def test_record_creation(self):
         self.assertEqual(self.record, Record.objects.get(id=self.record.id))
 

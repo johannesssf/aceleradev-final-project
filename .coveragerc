@@ -1,0 +1,16 @@
+[run]
+omit =
+    # app files and directories
+    api/__init__.py
+    api/tests.py
+    api/__pycache__
+    api/migrations/*
+
+    # project dir
+    errorscenter/*
+
+    # virtualenv dir
+    venv/*
+
+    # django files
+    manage.py

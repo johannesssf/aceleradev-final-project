@@ -1,5 +1,5 @@
 #%RAML 1.0
-baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/42c1c530-ce00-459f-9120-5b4def60a678/ #
+baseUri: https://johannesssf.github.io/aceleradev-final-project/docs/api.html #
 title: central-errors
 description: The Centrar Errors is a microservice responsible for storing and centralizing error messages for any equipment.
 securitySchemes:
@@ -78,14 +78,14 @@ types:
       date: 2020-02-27T00:00:00Z
       is_archived: true
 
-/auth/token:
+/auth/token/:
   post:
     description: User authentication used to access the resources.
     body:
       application/json:
         type: User
     responses:
-      201: # fazer um check de todas as respostas
+      200:
         body:
           application/json:
             example:
@@ -202,14 +202,14 @@ types:
             application/json:
               examples:
                 unalthenticated:
-                  {"message": "Authentication required"}
+                  {"message": "Authentication credentials were not provided."}
                 expired:
-                  {"message": "Token expired or invalid"}
+                  {"message": "Invalid token."}
         404:
           body:
             application/json:
               example:
-                {"message": "User not found"}
+                {"message": "User not found."}
     delete:
       description: Delete an system user.
       responses:
@@ -217,20 +217,20 @@ types:
           body:
             application/json:
               example:
-                {"message": "User deleted"}
+                {"message": "User deleted."}
         401:
           body:
             application/json:
               examples:
                 unalthenticated:
-                  {"message": "Authentication required"}
+                  {"message": "Authentication credentials were not provided."}
                 expired:
-                  {"message": "Token expired or invalid"}
+                  {"message": "Invalid token."}
         404:
           body:
             application/json:
               example:
-                {"message": "User not found"}
+                {"message": "User not found."}
 
 /records:
   description: Collection of system records.

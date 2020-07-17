@@ -30,7 +30,7 @@ class UserApiView(APIView):
                 serializer = UserModelSerializer(user)
                 return Response(serializer.data)
             else:
-                data = {"message": "User not found"}
+                data = {"message": "User not found."}
                 return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, id=None):
@@ -49,8 +49,8 @@ class UserApiView(APIView):
         user = User.objects.filter(id=id).first()
         if user:
             user.delete()
-            data = {"message": "User deleted"}
+            data = {"message": "User deleted."}
             return Response(data, status=status.HTTP_200_OK)
         else:
-            data = {"message": "User not found"}
+            data = {"message": "User not found."}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
