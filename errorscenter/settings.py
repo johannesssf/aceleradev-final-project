@@ -25,7 +25,7 @@ SECRET_KEY = os.getenv('ACELERADEV_FINAL_PROJ_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
