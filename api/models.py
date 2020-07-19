@@ -16,13 +16,15 @@ class Record(models.Model):
     origin = models.GenericIPAddressField('Origin', protocol='IPv4')
     date = models.DateTimeField('Date')
     is_archived = models.BooleanField('Is archived')
+    events = models.IntegerField('Events')
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} [{}][{}] {}: {}".format(
+        return "{} [{}][{}][{}] {}: {}".format(
             self.date.strftime('%Y-%m-%d %H:%M:%S'),
             self.level,
             self.origin,
             self.environment,
+            self.events,
             self.message
         )

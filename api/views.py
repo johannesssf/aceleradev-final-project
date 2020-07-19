@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
+from django_filters import rest_framework as rest_filters
 
-from rest_framework import status
+from rest_framework import generics, status, filters
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -57,68 +58,18 @@ class UserApiView(APIView):
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
 
-class RecordApiView(APIView):
-    """View to handle the api/records endpoint.
-    """
+class RecordListCreate(generics.ListCreateAPIView):
+    queryset = Record.objects.all()
+    serializer_class = RecordModelSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    filter_backends = [rest_filters.DjangoFilterBackend, filters.SearchFilter]
+    filter_fields = ['environment', 'level', 'message', 'origin']
+    search_fields = ['message']
 
-    def get(self, request, id=None):
-        """Handles GET HTTP method to list records.
 
-        If 'id' is None, returns a list of records otherwise a single
-        record.
-        """
-        if id is None:
-            records = Record.objects.all()
-            serializer = RecordModelSerializer(records, many=True)
-            return Response(serializer.data)
-        else:
-            record = Record.objects.filter(id=id).first()
-            if record:
-                serializer = RecordModelSerializer(record)
-                return Response(serializer.data)
-
-        data = {"message": "Record not found."}
-        return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-    def post(self, request, id=None):
-        """Handles POST HTTP method to create new records.
-        """
-        serializer = RecordModelSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, id):
-        """Handles PUT HTTP method to update records.
-        """
-        record = Record.objects.filter(id=id).first()
-        if record:
-            serializer = RecordModelSerializer(record, data=request.data)
-            serializer.partial = True
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            else:
-                return Response(
-                    serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-        data = {"message": "Record not found."}
-        return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request, id):
-        """Handles DELETE HTTP method to delete records.
-        """
-        record = Record.objects.filter(id=id).first()
-        if record:
-            record.delete()
-            data = {"message": "Record deleted."}
-            return Response(data, status=status.HTTP_200_OK)
-
-        data = {"message": "Record not found."}
-        return Response(data, status=status.HTTP_404_NOT_FOUND)
+class RecordRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Record.objects.all()
+    serializer_class = RecordModelSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

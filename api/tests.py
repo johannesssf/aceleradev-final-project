@@ -324,6 +324,7 @@ class TestRecordAPI(TestCase):
             'origin': '192.168.0.111',
             'is_archived': False,
             'date': '2020-04-01T11:54:37',
+            'events': 1,
             'user_id': User.objects.first().id
         }
         client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
@@ -458,8 +459,33 @@ class TestRecordAPI(TestCase):
             'level': 'error',
             'message': 'updated message',
             'origin': '172.169.0.50',
+            'date': '2020-04-01T00:00:00-03:00',
+            'is_archived': 'false',
+            'events': 10,
+            'user_id': 1
         }
         resp = client.put('/api/records/1/', data, format='json')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['environment'], data['environment'])
+        self.assertEqual(resp.data['level'], data['level'])
+        self.assertEqual(resp.data['message'], data['message'])
+        self.assertEqual(resp.data['origin'], data['origin'])
+
+    def test_records_id_patch(self):
+        """Ensure that a patch in '/api/records/{id}/' with a valid token
+        will partially update the record fields and return a ok status
+        code.
+        """
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        data = {
+            'environment': 'New env',
+            'level': 'error',
+            'message': 'updated message',
+            'origin': '172.169.0.50',
+        }
+        resp = client.patch('/api/records/1/', data, format='json')
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['environment'], data['environment'])
@@ -519,14 +545,14 @@ class TestRecordAPI(TestCase):
 
     def test_records_id_delete(self):
         """Ensure that a delete in '/api/records/{id}/' with a valid
-        token will delete the record and return a ok status code.
+        token will delete the record and return a no content status code.
         """
         client = APIClient()
 
         client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         resp = client.delete('/api/records/1/', format='json')
 
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_records_id_delete_non_existent_record(self):
         """Ensure that a delete in '/api/records/{id}/' with a valid
