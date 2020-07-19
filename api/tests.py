@@ -183,7 +183,6 @@ class TestUsersAPI(TestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['username'], user.username)
-        self.assertEqual(resp.data['email'], user.email)
 
     def test_users_id_get_inexistent_user(self):
         """Ensure that a get in '/api/users/{id}' with a valid token
