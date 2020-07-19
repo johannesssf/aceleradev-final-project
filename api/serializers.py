@@ -5,21 +5,25 @@ from .models import Record
 
 
 class UserModelSerializer(ModelSerializer):
+    """User serializer.
+    """
     class Meta:
         model = User
         fields = [
             'id',
             'username',
-            'email',
             'password',
         ]
 
     def create(self, validated_data):
+        # Django password hashing.
         user = User.objects.create_user(**validated_data)
         return user
 
 
 class RecordModelSerializer(ModelSerializer):
+    """Record serializer.
+    """
     class Meta:
         model = Record
         fields = [

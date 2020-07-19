@@ -52,12 +52,10 @@ types:
     description: Central Errors users.
     type: object
     properties:
-      username: string
-      email: Email
+      username: Email
       password: Password
     example:
-      username: john
-      email: john@email.com
+      username: john@email.com
       password: asdf1234
 
   Record:
@@ -68,15 +66,19 @@ types:
       level: LogLevel
       message: String200
       origin: IPv4
+      events: integer
       date: datetime
       is_archived: boolean
+      user_id: integer
     example:
       environment: Production
       level: debug
       message: Record message
       origin: 1.1.1.1
+      events: 200
       date: 2020-02-27T00:00:00Z
       is_archived: true
+      user_id: 1
 
 /auth/token/:
   post:
@@ -120,20 +122,17 @@ types:
                 [
                   {
                     "id": 1,
-                    "username": 'john',
-                    "email": "john@email.com",
+                    "username": 'john@email.com',
                     "password": "abcdedegadfadf"
                   },
                   {
                     "id": 2,
-                    "username": "mary",
-                    "email": "mary@email.com",
+                    "username": "mary@email.com",
                     "password": "abcdedegadfadf"
                   },
                   {
                     "id": 3,
-                    "username": "beth",
-                    "email": "beth@gmail.com",
+                    "username": "beth@email.com",
                     "password": "abcdedegadfadf"
                   }
                 ]
@@ -156,22 +155,28 @@ types:
           application/json:
             example:
               {
-                "username": "john",
-                "email": "john@email.com",
+                "username": "john@email.com",
                 "password": "asdf1243"
               }
       400:
         body:
           application/json:
-            example:
-              {
-                "username": [
-                    "This field is required."
-                ],
-                "password": [
-                    "This field is required."
-                ]
-              }
+            examples:
+              required_fields:
+                {
+                  "username": [
+                      "This field is required."
+                  ],
+                  "password": [
+                      "This field is required."
+                  ]
+                }
+              existent_user:
+                {
+                  "username": [
+                      "A user with that username already exists."
+                  ]
+                }
       401:
         body:
           application/json:
@@ -193,8 +198,7 @@ types:
               example:
                 {
                   "id": 111,
-                  "username": "john",
-                  "email": "john@email.com",
+                  "username": "john@email.com",
                   "password": "abcdedegadfadf"
                 }
         401:
@@ -209,15 +213,12 @@ types:
           body:
             application/json:
               example:
-                {"message": "User not found."}
+                {"message": "Not found."}
     delete:
       description: Delete an system user.
       responses:
-        200:
-          body:
-            application/json:
-              example:
-                {"message": "User deleted."}
+        204:
+          description: No returned message.
         401:
           body:
             application/json:
@@ -230,13 +231,13 @@ types:
           body:
             application/json:
               example:
-                {"message": "User not found."}
+                {"message": "Not found."}
 
 /records:
   description: Collection of system records.
   securedBy: [JWT]
   get: # use some kind of filter
-    description: List of all records available.
+    description: List of all records available, optionally filtered.
     responses:
       200:
         body:
@@ -250,8 +251,10 @@ types:
                     "level": "warning",
                     "message": "User authentication failed 3x",
                     "origin": 1.1.1.1,
+                    events: 100
                     "date": 2020-03-05T23:56:19,
-                    "is_archived": false
+                    "is_archived": false,
+                    "user_id": 1
                   },
                   {
                     "id": 2,
@@ -259,17 +262,21 @@ types:
                     "level": "error",
                     "message": "Unreconized user credential - Peter",
                     "origin": 2.2.2.2,
+                    events: 50
                     "date": 2020-03-05T23:56:19,
-                    "is_archived": false
+                    "is_archived": false,
+                    "user_id": 1
                   },
                   {
-                    "id": 3,
+                    "id": 350,
                     "environment": "Homolog",
                     "level": "debug",
                     "message": "Preparing file to download",
                     "origin": 3.3.3.3,
+                    events: 100
                     "date": 2020-02-25T13:26:19,
-                    "is_archived": false
+                    "is_archived": false,
+                    "user_id": 1
                   }
                 ]
               }
@@ -291,7 +298,17 @@ types:
         body:
           application/json:
             example:
-              {"message": "Record created."}
+              {
+                "id": 11,
+                "environment": "Production",
+                "level": "debug",
+                "message": "some warning message",
+                "origin": "192.168.0.222",
+                "date": "2020-04-01T11:54:37-03:00",
+                "is_archived": false,
+                "events": 100,
+                "user_id": 1
+              }
       400:
         body:
           application/json:
@@ -315,6 +332,9 @@ types:
                   ],
                   "is_archived": [
                       "This field is required."
+                  ],
+                  "events": [
+                    "This field is required."
                   ],
                   "user_id": [
                       "This field is required."
@@ -352,6 +372,7 @@ types:
                   "message": "User authentication failed 3x",
                   "origin": 1.1.1.1,
                   "date": 2020-03-05T23:56:19,
+                  "events": 100
                   "is_archived": false
                 }
         401:
@@ -366,8 +387,106 @@ types:
           body:
             application/json:
               example:
-                {"message": "Record not found."}
+                {"message": "Not found."}
   put:
+    description: Full update, all fields are mandatory.
+    body:
+      application/json:
+        properties:
+          environment: String30
+          level: LogLevel
+          message: String200
+          origin: IPv4
+          date: datetime
+          events: integer
+          is_archived: boolean
+          user_id: integer
+        example:
+          {
+            "environment": "Production",
+            "level": "debug",
+            "message": "Record message",
+            "origin": "1.1.1.1",
+            "date": 2020-02-27T00:00:00Z,
+            "events": 200,
+            "is_archived": true
+            "user_id": 1
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "id": 1,
+                "environment": "Updated env",
+                "level": "debug",
+                "message": "Updated message",
+                "origin": "172.169.0.52",
+                "date": "2020-07-17T10:55:54.805566-03:00",
+                "is_archived": true,
+                "events": 100,
+                "user_id": 1
+              }
+      400:
+        body:
+          application/json:
+            examples:
+              invalid_field_content:
+                {
+                  "level": [
+                    "\"invalid\" is not a valid choice."
+                  ]
+                  "origin": [
+                    "Enter a valid IPv4 address."
+                  ],
+                  "user_id": [
+                    "Invalid pk \"1000\" - object does not exist."
+                  ]
+                }
+              missing_fields:
+                {
+                  "environment": [
+                      "This field is required."
+                  ],
+                  "level": [
+                      "This field is required."
+                  ],
+                  "message": [
+                      "This field is required."
+                  ],
+                  "origin": [
+                      "This field is required."
+                  ],
+                  "date": [
+                      "This field is required."
+                  ],
+                  "is_archived": [
+                      "This field is required."
+                  ],
+                  "events": [
+                      "This field is required."
+                  ],
+                  "user_id": [
+                      "This field is required."
+                  ]
+                }
+      401:
+        body:
+          application/json:
+            examples:
+              unalthenticated:
+                unalthenticated:
+                  {"message": "Authentication credentials were not provided."}
+                expired:
+                  {"message": "Invalid token."}
+      404:
+          body:
+            application/json:
+              example:
+                {"message": "Not found."}
+  patch:
+    description: Partial update.
     body:
       application/json:
         properties:
@@ -376,7 +495,9 @@ types:
           message?: String200
           origin?: IPv4
           date?: datetime
+          events?: integer
           is_archived?: boolean
+          user_id?: integer
         example:
           {
             "environment": "Production",
@@ -433,14 +554,11 @@ types:
           body:
             application/json:
               example:
-                {"message": "Record not found."}
+                {"message": "Not found."}
   delete:
     responses:
-      200:
-        body:
-          application/json:
-            example:
-              {"message": "Record deleted."}
+      204:
+        description: No returned message.
       401:
         body:
           application/json:
@@ -453,4 +571,4 @@ types:
           body:
             application/json:
               example:
-                {"message": "Record not found."}
+                {"message": "Not found."}
