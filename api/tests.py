@@ -218,14 +218,15 @@ class TestUsersAPI(TestCase):
 
     def test_users_id_delete(self):
         """Ensure that a delete in '/api/users/{id}' works fine with a
-        valid token and returns an OK status code and the user is deleted.
+        valid token and returns an no content status code and the user is
+        deleted.
         """
         user = User.objects.latest('id')
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         resp = client.delete(f'/api/users/{user.id}/', format='json')
 
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
         with self.assertRaises(ObjectDoesNotExist):
             User.objects.get(pk=user.id)

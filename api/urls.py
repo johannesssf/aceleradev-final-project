@@ -1,16 +1,26 @@
-from django.urls import path, re_path
+from django.urls import path
 
 from rest_framework.authtoken.views import obtain_auth_token
 
-from .views import UserApiView, RecordListCreate, RecordRetrieveUpdateDestroy
+from .views import (
+    RecordListCreate,
+    RecordRetrieveUpdateDestroy,
+    UserListCreateView,
+    UserRetrieveDestroyView,
+)
 
 
 urlpatterns = [
     path('auth/token/', obtain_auth_token),
-    re_path(
-        r'^users/((?P<id>\d+)/)?$',
-        UserApiView.as_view(),
-        name='users'
+    path(
+        'users/',
+        UserListCreateView.as_view(),
+        name='users-list-create'
+    ),
+    path(
+        'users/<int:pk>/',
+        UserRetrieveDestroyView.as_view(),
+        name='users-retrieve-destroy'
     ),
     path(
         'records/',
