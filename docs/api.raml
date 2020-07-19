@@ -91,7 +91,9 @@ types:
         body:
           application/json:
             example:
-              {"token": "e6223ae4a109705437fe69263dfb7ad3"}
+              {
+                "token": "e6223ae4a109705437fe69263dfb7ad3"
+              }
       400:
         body:
           application/json:
@@ -106,7 +108,9 @@ types:
                   ]
                 }
               invalid_credentials:
-                {"message": "Unable to log in with provided credentials."}
+                {
+                  "message": "Unable to log in with provided credentials."
+                }
 
 /users:
   description: Collection of system users.
@@ -118,33 +122,35 @@ types:
         body:
           application/json:
             example:
-              {
-                [
-                  {
-                    "id": 1,
-                    "username": 'john@email.com',
-                    "password": "abcdedegadfadf"
-                  },
-                  {
-                    "id": 2,
-                    "username": "mary@email.com",
-                    "password": "abcdedegadfadf"
-                  },
-                  {
-                    "id": 3,
-                    "username": "beth@email.com",
-                    "password": "abcdedegadfadf"
-                  }
-                ]
-              }
+              [
+                {
+                  "id": 1,
+                  "username": 'john@email.com',
+                  "password": "abcdedegadfadf"
+                },
+                {
+                  "id": 2,
+                  "username": "mary@email.com",
+                  "password": "abcdedegadfadf"
+                },
+                {
+                  "id": 3,
+                  "username": "beth@email.com",
+                  "password": "abcdedegadfadf"
+                }
+              ]
       401:
         body:
           application/json:
             examples:
               unalthenticated:
-                {"message": "Authentication credentials were not provided."}
+                {
+                  "message": "Authentication credentials were not provided."
+                }
               invalid:
-                {"message": "Invalid token."}
+                {
+                  "message": "Invalid token."
+                }
   post:
     body:
       application/json:
@@ -155,8 +161,9 @@ types:
           application/json:
             example:
               {
+                "id": 1,
                 "username": "john@email.com",
-                "password": "asdf1243"
+                "password": "hashed-password"
               }
       400:
         body:
@@ -182,9 +189,13 @@ types:
           application/json:
             examples:
               unalthenticated:
-                {"message": "Authentication credentials were not provided."}
+                {
+                  "message": "Authentication credentials were not provided."
+                }
               invalid:
-                {"message": "Invalid token."}
+                {
+                  "message": "Invalid token."
+                }
   /{id}:
     securedBy: [JWT]
     uriParameters:
@@ -199,21 +210,27 @@ types:
                 {
                   "id": 111,
                   "username": "john@email.com",
-                  "password": "abcdedegadfadf"
+                  "password": "hashed-password"
                 }
         401:
           body:
             application/json:
               examples:
                 unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
+                  {
+                    "message": "Authentication credentials were not provided."
+                  }
                 expired:
-                  {"message": "Invalid token."}
+                  {
+                    "message": "Invalid token."
+                  }
         404:
           body:
             application/json:
               example:
-                {"message": "Not found."}
+                {
+                  "message": "Not found."
+                }
     delete:
       description: Delete an system user.
       responses:
@@ -224,14 +241,20 @@ types:
             application/json:
               examples:
                 unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
+                  {
+                    "message": "Authentication credentials were not provided."
+                  }
                 expired:
-                  {"message": "Invalid token."}
+                  {
+                    "message": "Invalid token."
+                  }
         404:
           body:
             application/json:
               example:
-                {"message": "Not found."}
+                {
+                  "message": "Not found."
+                }
 
 /records:
   description: Collection of system records.
@@ -243,51 +266,53 @@ types:
         body:
           application/json:
             example:
-              {
-                [
-                  {
-                    "id": 1,
-                    "environment": "Production",
-                    "level": "warning",
-                    "message": "User authentication failed 3x",
-                    "origin": 1.1.1.1,
-                    events: 100
-                    "date": 2020-03-05T23:56:19,
-                    "is_archived": false,
-                    "user_id": 1
-                  },
-                  {
-                    "id": 2,
-                    "environment": "Production",
-                    "level": "error",
-                    "message": "Unreconized user credential - Peter",
-                    "origin": 2.2.2.2,
-                    events: 50
-                    "date": 2020-03-05T23:56:19,
-                    "is_archived": false,
-                    "user_id": 1
-                  },
-                  {
-                    "id": 350,
-                    "environment": "Homolog",
-                    "level": "debug",
-                    "message": "Preparing file to download",
-                    "origin": 3.3.3.3,
-                    events: 100
-                    "date": 2020-02-25T13:26:19,
-                    "is_archived": false,
-                    "user_id": 1
-                  }
-                ]
-              }
+              [
+                {
+                  "id": 1,
+                  "environment": "Production",
+                  "level": "warning",
+                  "message": "User authentication failed 3x",
+                  "origin": 1.1.1.1,
+                  events: 100,
+                  "date": 2020-03-05T23:56:19,
+                  "is_archived": false,
+                  "user_id": 1
+                },
+                {
+                  "id": 2,
+                  "environment": "Production",
+                  "level": "error",
+                  "message": "Unreconized user credential - Peter",
+                  "origin": 2.2.2.2,
+                  events: 50,
+                  "date": 2020-03-05T23:56:19,
+                  "is_archived": false,
+                  "user_id": 1
+                },
+                {
+                  "id": 350,
+                  "environment": "Homolog",
+                  "level": "debug",
+                  "message": "Preparing file to download",
+                  "origin": 3.3.3.3,
+                  events: 100,
+                  "date": 2020-02-25T13:26:19,
+                  "is_archived": false,
+                  "user_id": 1
+                }
+              ]
       401:
           body:
             application/json:
               examples:
                 unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
+                  {
+                    "message": "Authentication credentials were not provided."
+                  }
                 expired:
-                  {"message": "Invalid token."}
+                  {
+                    "message": "Invalid token."
+                  }
   post:
     description: Create a new record in the system.
     body:
@@ -351,9 +376,13 @@ types:
           application/json:
             examples:
               unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
-                expired:
-                  {"message": "Invalid token."}
+                {
+                  "message": "Authentication credentials were not provided."
+                }
+              expired:
+                {
+                  "message": "Invalid token."
+                }
 /records/{id}:
   securedBy: [JWT]
   uriParameters:
@@ -372,7 +401,7 @@ types:
                   "message": "User authentication failed 3x",
                   "origin": 1.1.1.1,
                   "date": 2020-03-05T23:56:19,
-                  "events": 100
+                  "events": 100,
                   "is_archived": false
                 }
         401:
@@ -380,14 +409,20 @@ types:
             application/json:
               examples:
                 unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
+                  {
+                    "message": "Authentication credentials were not provided."
+                  }
                 expired:
-                  {"message": "Invalid token."}
+                  {
+                    "message": "Invalid token."
+                  }
         404:
           body:
             application/json:
               example:
-                {"message": "Not found."}
+                {
+                  "message": "Not found."
+                }
   put:
     description: Full update, all fields are mandatory.
     body:
@@ -409,7 +444,7 @@ types:
             "origin": "1.1.1.1",
             "date": 2020-02-27T00:00:00Z,
             "events": 200,
-            "is_archived": true
+            "is_archived": true,
             "user_id": 1
           }
     responses:
@@ -435,41 +470,41 @@ types:
               invalid_field_content:
                 {
                   "level": [
-                    "\"invalid\" is not a valid choice."
-                  ]
+                      "\"invalid\" is not a valid choice."
+                    ],
                   "origin": [
-                    "Enter a valid IPv4 address."
-                  ],
+                      "Enter a valid IPv4 address."
+                    ],
                   "user_id": [
-                    "Invalid pk \"1000\" - object does not exist."
-                  ]
+                      "Invalid pk \"1000\" - object does not exist."
+                    ]
                 }
               missing_fields:
                 {
                   "environment": [
                       "This field is required."
-                  ],
+                    ],
                   "level": [
                       "This field is required."
-                  ],
+                    ],
                   "message": [
                       "This field is required."
-                  ],
+                    ],
                   "origin": [
                       "This field is required."
-                  ],
+                    ],
                   "date": [
                       "This field is required."
-                  ],
+                    ],
                   "is_archived": [
                       "This field is required."
-                  ],
+                    ],
                   "events": [
                       "This field is required."
-                  ],
+                    ],
                   "user_id": [
                       "This field is required."
-                  ]
+                    ]
                 }
       401:
         body:
@@ -477,14 +512,20 @@ types:
             examples:
               unalthenticated:
                 unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
+                  {
+                    "message": "Authentication credentials were not provided."
+                  }
                 expired:
-                  {"message": "Invalid token."}
+                  {
+                    "message": "Invalid token."
+                  }
       404:
           body:
             application/json:
               example:
-                {"message": "Not found."}
+                {
+                  "message": "Not found."
+                }
   patch:
     description: Partial update.
     body:
@@ -528,7 +569,7 @@ types:
             examples:
               invalid_level:
                 {
-                  "level": [
+                  "level":[
                     "\"invalid\" is not a valid choice."
                   ]
                 }
@@ -546,15 +587,20 @@ types:
           application/json:
             examples:
               unalthenticated:
-                unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
-                expired:
-                  {"message": "Invalid token."}
+                {
+                  "message": "Authentication credentials were not provided."
+                }
+              expired:
+                {
+                  "message": "Invalid token."
+                }
       404:
           body:
             application/json:
               example:
-                {"message": "Not found."}
+                {
+                  "message": "Not found."
+                }
   delete:
     responses:
       204:
@@ -564,11 +610,17 @@ types:
           application/json:
             examples:
               unalthenticated:
-                  {"message": "Authentication credentials were not provided."}
-                expired:
-                  {"message": "Invalid token."}
+                {
+                  "message": "Authentication credentials were not provided."
+                }
+              expired:
+                {
+                  "message": "Invalid token."
+                }
       404:
           body:
             application/json:
               example:
-                {"message": "Not found."}
+                {
+                  "message": "Not found."
+                }
