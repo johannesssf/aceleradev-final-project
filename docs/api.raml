@@ -80,7 +80,7 @@ types:
       is_archived: true
       user_id: 1
 
-/auth/token/:
+/api/auth/token/:
   post:
     description: User authentication used to access the resources.
     body:
@@ -112,7 +112,7 @@ types:
                   "message": "Unable to log in with provided credentials."
                 }
 
-/users:
+/api/users/:
   description: Collection of system users.
   securedBy: [JWT]
   get:
@@ -196,7 +196,7 @@ types:
                 {
                   "message": "Invalid token."
                 }
-  /{id}:
+  /{id}/:
     securedBy: [JWT]
     uriParameters:
       id: integer
@@ -256,7 +256,7 @@ types:
                   "message": "Not found."
                 }
 
-/records:
+/api/records/:
   description: Collection of system records.
   securedBy: [JWT]
   get: # use some kind of filter
@@ -383,12 +383,70 @@ types:
                 {
                   "message": "Invalid token."
                 }
-/records/{id}:
-  securedBy: [JWT]
-  uriParameters:
-    id: integer
-  get:
-      description: Get information of a record.
+  /{id}/:
+    securedBy: [JWT]
+    uriParameters:
+      id: integer
+    get:
+        description: Get information of a record.
+        responses:
+          200:
+            body:
+              application/json:
+                example:
+                  {
+                    "id": 1,
+                    "environment": "Production",
+                    "level": "warning",
+                    "message": "User authentication failed 3x",
+                    "origin": 1.1.1.1,
+                    "date": 2020-03-05T23:56:19,
+                    "events": 100,
+                    "is_archived": false
+                  }
+          401:
+            body:
+              application/json:
+                examples:
+                  unalthenticated:
+                    {
+                      "message": "Authentication credentials were not provided."
+                    }
+                  expired:
+                    {
+                      "message": "Invalid token."
+                    }
+          404:
+            body:
+              application/json:
+                example:
+                  {
+                    "message": "Not found."
+                  }
+    put:
+      description: Full update, all fields are mandatory.
+      body:
+        application/json:
+          properties:
+            environment: String30
+            level: LogLevel
+            message: String200
+            origin: IPv4
+            date: datetime
+            events: integer
+            is_archived: boolean
+            user_id: integer
+          example:
+            {
+              "environment": "Production",
+              "level": "debug",
+              "message": "Record message",
+              "origin": "1.1.1.1",
+              "date": 2020-02-27T00:00:00Z,
+              "events": 200,
+              "is_archived": true,
+              "user_id": 1
+            }
       responses:
         200:
           body:
@@ -396,14 +454,134 @@ types:
               example:
                 {
                   "id": 1,
-                  "environment": "Production",
-                  "level": "warning",
-                  "message": "User authentication failed 3x",
-                  "origin": 1.1.1.1,
-                  "date": 2020-03-05T23:56:19,
+                  "environment": "Updated env",
+                  "level": "debug",
+                  "message": "Updated message",
+                  "origin": "172.169.0.52",
+                  "date": "2020-07-17T10:55:54.805566-03:00",
+                  "is_archived": true,
                   "events": 100,
-                  "is_archived": false
+                  "user_id": 1
                 }
+        400:
+          body:
+            application/json:
+              examples:
+                invalid_field_content:
+                  {
+                    "level": [
+                        "\"invalid\" is not a valid choice."
+                      ],
+                    "origin": [
+                        "Enter a valid IPv4 address."
+                      ],
+                    "user_id": [
+                        "Invalid pk \"1000\" - object does not exist."
+                      ]
+                  }
+                missing_fields:
+                  {
+                    "environment": [
+                        "This field is required."
+                      ],
+                    "level": [
+                        "This field is required."
+                      ],
+                    "message": [
+                        "This field is required."
+                      ],
+                    "origin": [
+                        "This field is required."
+                      ],
+                    "date": [
+                        "This field is required."
+                      ],
+                    "is_archived": [
+                        "This field is required."
+                      ],
+                    "events": [
+                        "This field is required."
+                      ],
+                    "user_id": [
+                        "This field is required."
+                      ]
+                  }
+        401:
+          body:
+            application/json:
+              examples:
+                unalthenticated:
+                  unalthenticated:
+                    {
+                      "message": "Authentication credentials were not provided."
+                    }
+                  expired:
+                    {
+                      "message": "Invalid token."
+                    }
+        404:
+            body:
+              application/json:
+                example:
+                  {
+                    "message": "Not found."
+                  }
+    patch:
+      description: Partial update.
+      body:
+        application/json:
+          properties:
+            environment?: String30
+            level?: LogLevel
+            message?: String200
+            origin?: IPv4
+            date?: datetime
+            events?: integer
+            is_archived?: boolean
+            user_id?: integer
+          example:
+            {
+              "environment": "Production",
+              "level": "debug",
+              "message": "Record message",
+              "origin": "1.1.1.1",
+              "date": 2020-02-27T00:00:00Z,
+              "is_archived": true
+            }
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "id": 1,
+                  "environment": "Updated env",
+                  "level": "debug",
+                  "message": "Updated message",
+                  "origin": "172.169.0.52",
+                  "date": "2020-07-17T10:55:54.805566-03:00",
+                  "is_archived": true,
+                  "user_id": 20
+                }
+        400:
+          body:
+            application/json:
+              examples:
+                invalid_level:
+                  {
+                    "level":[
+                      "\"invalid\" is not a valid choice."
+                    ]
+                  }
+                invalid_origin_invalid_user:
+                  {
+                    "origin": [
+                      "Enter a valid IPv4 address."
+                    ],
+                    "user_id": [
+                      "Invalid pk \"1000\" - object does not exist."
+                    ]
+                  }
         401:
           body:
             application/json:
@@ -417,100 +595,20 @@ types:
                     "message": "Invalid token."
                   }
         404:
+            body:
+              application/json:
+                example:
+                  {
+                    "message": "Not found."
+                  }
+    delete:
+      responses:
+        204:
+          description: No returned message.
+        401:
           body:
             application/json:
-              example:
-                {
-                  "message": "Not found."
-                }
-  put:
-    description: Full update, all fields are mandatory.
-    body:
-      application/json:
-        properties:
-          environment: String30
-          level: LogLevel
-          message: String200
-          origin: IPv4
-          date: datetime
-          events: integer
-          is_archived: boolean
-          user_id: integer
-        example:
-          {
-            "environment": "Production",
-            "level": "debug",
-            "message": "Record message",
-            "origin": "1.1.1.1",
-            "date": 2020-02-27T00:00:00Z,
-            "events": 200,
-            "is_archived": true,
-            "user_id": 1
-          }
-    responses:
-      200:
-        body:
-          application/json:
-            example:
-              {
-                "id": 1,
-                "environment": "Updated env",
-                "level": "debug",
-                "message": "Updated message",
-                "origin": "172.169.0.52",
-                "date": "2020-07-17T10:55:54.805566-03:00",
-                "is_archived": true,
-                "events": 100,
-                "user_id": 1
-              }
-      400:
-        body:
-          application/json:
-            examples:
-              invalid_field_content:
-                {
-                  "level": [
-                      "\"invalid\" is not a valid choice."
-                    ],
-                  "origin": [
-                      "Enter a valid IPv4 address."
-                    ],
-                  "user_id": [
-                      "Invalid pk \"1000\" - object does not exist."
-                    ]
-                }
-              missing_fields:
-                {
-                  "environment": [
-                      "This field is required."
-                    ],
-                  "level": [
-                      "This field is required."
-                    ],
-                  "message": [
-                      "This field is required."
-                    ],
-                  "origin": [
-                      "This field is required."
-                    ],
-                  "date": [
-                      "This field is required."
-                    ],
-                  "is_archived": [
-                      "This field is required."
-                    ],
-                  "events": [
-                      "This field is required."
-                    ],
-                  "user_id": [
-                      "This field is required."
-                    ]
-                }
-      401:
-        body:
-          application/json:
-            examples:
-              unalthenticated:
+              examples:
                 unalthenticated:
                   {
                     "message": "Authentication credentials were not provided."
@@ -519,108 +617,10 @@ types:
                   {
                     "message": "Invalid token."
                   }
-      404:
-          body:
-            application/json:
-              example:
-                {
-                  "message": "Not found."
-                }
-  patch:
-    description: Partial update.
-    body:
-      application/json:
-        properties:
-          environment?: String30
-          level?: LogLevel
-          message?: String200
-          origin?: IPv4
-          date?: datetime
-          events?: integer
-          is_archived?: boolean
-          user_id?: integer
-        example:
-          {
-            "environment": "Production",
-            "level": "debug",
-            "message": "Record message",
-            "origin": "1.1.1.1",
-            "date": 2020-02-27T00:00:00Z,
-            "is_archived": true
-          }
-    responses:
-      200:
-        body:
-          application/json:
-            example:
-              {
-                "id": 1,
-                "environment": "Updated env",
-                "level": "debug",
-                "message": "Updated message",
-                "origin": "172.169.0.52",
-                "date": "2020-07-17T10:55:54.805566-03:00",
-                "is_archived": true,
-                "user_id": 20
-              }
-      400:
-        body:
-          application/json:
-            examples:
-              invalid_level:
-                {
-                  "level":[
-                    "\"invalid\" is not a valid choice."
-                  ]
-                }
-              invalid_origin_invalid_user:
-                {
-                  "origin": [
-                    "Enter a valid IPv4 address."
-                  ],
-                  "user_id": [
-                    "Invalid pk \"1000\" - object does not exist."
-                  ]
-                }
-      401:
-        body:
-          application/json:
-            examples:
-              unalthenticated:
-                {
-                  "message": "Authentication credentials were not provided."
-                }
-              expired:
-                {
-                  "message": "Invalid token."
-                }
-      404:
-          body:
-            application/json:
-              example:
-                {
-                  "message": "Not found."
-                }
-  delete:
-    responses:
-      204:
-        description: No returned message.
-      401:
-        body:
-          application/json:
-            examples:
-              unalthenticated:
-                {
-                  "message": "Authentication credentials were not provided."
-                }
-              expired:
-                {
-                  "message": "Invalid token."
-                }
-      404:
-          body:
-            application/json:
-              example:
-                {
-                  "message": "Not found."
-                }
+        404:
+            body:
+              application/json:
+                example:
+                  {
+                    "message": "Not found."
+                  }
